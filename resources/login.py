@@ -45,6 +45,8 @@ def oauth2callback():
         last_name = j.get("family_name")
         user_id = j.get("id")
         password = (hashlib.md5(str(user_id).encode('utf-8')).hexdigest())
+        if str(j.get("hd")) != 'quovantis.com':
+            return "Emails registered only with Quovantis are allowed..."
         try:
             user = db.session.query(Users).filter(Users.password == password).first()
             if user is None:
