@@ -55,6 +55,9 @@ class Bets(db.Model):
         return {"id": self.id, "user_id": self.user_id, "fixture_id": self.fixture_id,
                 "team_id": self.team_id, "amount": self.amount}
 
+    def __repr__(self):
+        return str()
+
 
 class UserBettingHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
