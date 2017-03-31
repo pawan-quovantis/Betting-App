@@ -20,11 +20,14 @@ class Users(db.Model):
 
 class Teams(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    team_name = db.Column(db.String(50))
-    home_ground = db.Column(db.String(25))
+    team_name = db.Column(db.String(100))
+    home_ground = db.Column(db.String(100))
+    captain = db.Column(db.String(100))
+    coach = db.Column(db.String(100))
 
     def my_dict(self):
-        return {"id": self.id, "team_name": self.team_name, "home_ground": self.home_ground}
+        return {"id": self.id, "team_name": self.team_name, "home_ground": self.home_ground,
+                "captain": self.captain, "coach": self.coach}
 
 
 class Fixtures(db.Model):
@@ -35,10 +38,11 @@ class Fixtures(db.Model):
     result = db.Column(db.Integer)
     home_team = db.relationship(Teams, foreign_keys=[home_team_id])
     away_team = db.relationship(Teams, foreign_keys=[away_team_id])
+    venue = db.Column(db.String(100))
 
     def my_dict(self):
         return {"id": self.id, "match_date": self.match_date, "home_team_id": self.home_team_id,
-                "away_team_id": self.away_team_id, "result": self.result}
+                "away_team_id": self.away_team_id, "venue": self.venue, "result": self.result}
 
 
 class Bets(db.Model):
@@ -69,5 +73,4 @@ class UserBettingHistory(db.Model):
 
     def my_dict(self):
         return {"id": self.id, "user_id": self.user_id, "fixture_id": self.fixture_id, "score": self.score}
-
 
