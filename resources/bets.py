@@ -8,7 +8,6 @@ from sqlalchemy import or_
 
 class Bets(Resource):
 
-    # @login_required
     def get(self):
         if hasattr(request, 'authorization'):
             password = request.headers["authorization"]
@@ -17,6 +16,11 @@ class Bets(Resource):
             user_bets = []
             for bet in bets:
                 user_bets.append(bet.my_dict())
+
+            all_bets = db.session.query(models.Bets).all()
+            all_bets_array = []
+            for bet in all_bets:
+                all_bets_array.append(bet.my_dict())
 
             matches = []
             fixtures = db.session.query(Fixtures).all()
@@ -30,6 +34,18 @@ class Bets(Resource):
                             match["bet_amount"] = user_bet["amount"]
                             match["bet_placed_on_team"] = user_bet["team_id"]
 
+                    bets_on_home_team = 0
+                    bets_on_away_team = 0
+                    for bet in all_bets_array:
+                        if match["id"] == bet["fixture_id"]:
+                            if match["home_team_id"] == bet["team_id"]:
+                                bets_on_home_team += bet["amount"]
+                            elif match["away_team_id"] == bet["team_id"]:
+                                bets_on_away_team += bet["amount"]
+
+                    match["bets_on_home_team"] = bets_on_home_team
+                    match["bets_on_away_team"] = bets_on_away_team
+                    
             return jsonify(matches)
 
         else:
