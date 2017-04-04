@@ -1,11 +1,12 @@
 import json
 import requests
 from flask_restful import reqparse, Resource
-from flask import request
+from flask import request, jsonify, redirect, url_for
 from models import *
 from server import app, db
-from flask import jsonify
 import hashlib
+import datetime
+import urllib
 
 parser = reqparse.RequestParser()
 parser.add_argument('task')
@@ -45,19 +46,35 @@ def oauth2callback():
         last_name = j.get("family_name")
         user_id = j.get("id")
         password = (hashlib.md5(str(user_id).encode('utf-8')).hexdigest())
+
         if str(j.get("hd")) != 'quovantis.com':
             return "Emails registered only with Quovantis are allowed..."
         try:
             user = db.session.query(Users).filter(Users.password == password).first()
+            print urllib.urlencode({"verification_id": user.password, "email": user.email, "first_name": user.first_name,
+                              "last_name": user.last_name})
             if user is None:
-                user = Users(first_name=first_name, last_name=last_name, email=email, password=password)
+                user = Users(first_name=first_name, last_name=last_name, email=email, password=password,
+                             join_date=datetime.datetime.now())
                 db.session.add(user)
                 db.session.commit()
-                return jsonify({"verification_id": password, "email": email, "first_name": first_name,
-                                "last_name": last_name})
+
+                # return redirect("/bets")
+                # Not sure if this would work 
+                return redirect("localhost:3000/dashboard")
+                # , Response=jsonify({"verification_id": password, "email": email, "first_name": first_name,
+                #                 "last_name": last_name}))
+                # response = redirect('https://google.com')
+                # response.headers = {'authorization': 'whatever'}
+                # return response
+
             else:
-                return jsonify({"verification_id": user.password, "email": user.email, "first_name": user.first_name,
-                                "last_name": user.last_name})
+                return redirect("localhost:3000/dashboard")
+                # return redirect("/bets")
+                # return redirect("/bets?"+str(urllib.urlencode({"verification_id": user.password, "email": user.email,
+                # "first_name": user.first_name,
+                #                 "last_name": user.last_name})))
+                # return response
 
         except Exception as ex:
             return ex.message, 500
